@@ -272,8 +272,8 @@ export const Module2_Geometry: React.FC<Module2Props> = ({ lang }) => {
       const maxLiftPx = 75;
       const currentLiftY = waterLevelY - pullHeight * maxLiftPx;
 
-      // 2. Capillary Meniscus (if not snapped)
-      if (!isSnapped && pullHeight > 0.05) {
+      // 2. Capillary Meniscus (shown whenever not snapped)
+      if (!isSnapped) {
         drawCapillaryMeniscus(
           ctx,
           project,
@@ -410,29 +410,56 @@ export const Module2_Geometry: React.FC<Module2Props> = ({ lang }) => {
       type === 'sphere_detachment' ||
       type === 'hollow_cylinder'
     ) {
-      ctx.beginPath();
       const segments = isCut ? 24 : 48;
       const skirtOuterR = rPx + 14;
+      const topPts: { x: number; y: number }[] = [];
+      const botPts: { x: number; y: number }[] = [];
+
       for (let i = 0; i <= segments; i++) {
         const theta = startAngle + (i / segments) * (endAngle - startAngle);
-        const topPt = project(Math.cos(theta) * rPx, objY, Math.sin(theta) * rPx);
-        const botPt = project(Math.cos(theta) * skirtOuterR, waterY, Math.sin(theta) * skirtOuterR);
-        if (i === 0) ctx.moveTo(botPt.x, botPt.y);
-        ctx.lineTo(topPt.x, topPt.y);
+        topPts.push(project(Math.cos(theta) * rPx, objY, Math.sin(theta) * rPx));
+        botPts.push(project(Math.cos(theta) * skirtOuterR, waterY, Math.sin(theta) * skirtOuterR));
       }
+
+      ctx.beginPath();
+      ctx.moveTo(topPts[0].x, topPts[0].y);
+      for (let i = 1; i < topPts.length; i++) {
+        ctx.lineTo(topPts[i].x, topPts[i].y);
+      }
+      for (let i = botPts.length - 1; i >= 0; i--) {
+        ctx.lineTo(botPts[i].x, botPts[i].y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
       ctx.fill();
+      ctx.strokeStyle = 'rgba(2, 132, 199, 0.65)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
 
       if (type === 'wire_ring' || type === 'hollow_cylinder') {
-        ctx.beginPath();
         const skirtInnerR = Math.max(5, rInPx - 10);
+        const inTopPts: { x: number; y: number }[] = [];
+        const inBotPts: { x: number; y: number }[] = [];
         for (let i = 0; i <= segments; i++) {
           const theta = startAngle + (i / segments) * (endAngle - startAngle);
-          const topPt = project(Math.cos(theta) * rInPx, objY, Math.sin(theta) * rInPx);
-          const botPt = project(Math.cos(theta) * skirtInnerR, waterY, Math.sin(theta) * skirtInnerR);
-          if (i === 0) ctx.moveTo(botPt.x, botPt.y);
-          ctx.lineTo(topPt.x, topPt.y);
+          inTopPts.push(project(Math.cos(theta) * rInPx, objY, Math.sin(theta) * rInPx));
+          inBotPts.push(project(Math.cos(theta) * skirtInnerR, waterY, Math.sin(theta) * skirtInnerR));
         }
+
+        ctx.beginPath();
+        ctx.moveTo(inTopPts[0].x, inTopPts[0].y);
+        for (let i = 1; i < inTopPts.length; i++) {
+          ctx.lineTo(inTopPts[i].x, inTopPts[i].y);
+        }
+        for (let i = inBotPts.length - 1; i >= 0; i--) {
+          ctx.lineTo(inBotPts[i].x, inBotPts[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
         ctx.fill();
+        ctx.strokeStyle = 'rgba(2, 132, 199, 0.5)';
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
       }
     } else if (type === 'needle') {
       const halfL = (len * 1000) / 2;
@@ -953,7 +980,7 @@ export const Module2_Geometry: React.FC<Module2Props> = ({ lang }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[330px_1fr_320px] gap-4 w-full max-w-[1720px] mx-auto p-4 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] xl:grid-cols-[340px_1fr_340px] gap-3.5 w-full p-2.5 sm:p-3 lg:p-4 items-start flex-1">
       {/* LEFT SIDEBAR: Specimen Controls */}
       <aside className="bg-white rounded-2xl border border-sky-200 shadow-sm p-4 flex flex-col gap-4 text-slate-900 max-h-[calc(100vh-100px)] overflow-y-auto">
         <div>
@@ -1176,8 +1203,8 @@ export const Module2_Geometry: React.FC<Module2Props> = ({ lang }) => {
         </div>
       </aside>
 
-      {/* CENTER STAGE: 360° Interactive Canvas */}
-      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[640px]">
+      {/* CENTER STAGE: 360° Interactive Canvas (Full Width, Expanded Height) */}
+      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[700px] xl:min-h-[750px] w-full min-w-0">
         {/* Canvas Toolbar Info & Zoom Controls */}
         <div className="flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-600 bg-sky-50/70 rounded-xl border border-sky-100">
           <div className="flex items-center gap-2">
@@ -1226,7 +1253,7 @@ export const Module2_Geometry: React.FC<Module2Props> = ({ lang }) => {
         </div>
 
         {/* 3D Canvas Viewport */}
-        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[580px]">
+        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[640px] xl:min-h-[690px]">
           <canvas
             ref={canvasRef}
             onMouseDown={handleMouseDown}

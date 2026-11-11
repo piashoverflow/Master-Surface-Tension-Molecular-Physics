@@ -21,8 +21,8 @@ export const Header: React.FC<HeaderProps> = ({
   const t = translations[lang];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-200 shadow-xs px-4 lg:px-6 py-2.5 transition-colors">
-      <div className="max-w-[1720px] mx-auto flex flex-col xl:flex-row items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-200 shadow-xs px-3 sm:px-6 py-2.5 transition-colors w-full">
+      <div className="w-full flex flex-col xl:flex-row items-center justify-between gap-3">
         {/* Left: Studio Title & Chapter Marker */}
         <div className="flex items-center gap-3 shrink-0 self-start xl:self-auto">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 text-white flex items-center justify-center shadow-sm">

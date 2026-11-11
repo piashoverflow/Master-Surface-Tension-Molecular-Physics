@@ -82,12 +82,12 @@ export const Module1_Molecular: React.FC<Module1Props> = ({ lang }) => {
   const isDraggingProbeRef = useRef<boolean>(false);
   const probePosRef = useRef<{ x: number; y: number }>({ x: 250, y: 120 });
 
-  // Initialize molecules
+  // Initialize molecules across full available width
   useEffect(() => {
     const list: SimMolecule[] = [];
-    const count = 160;
-    const poolW = 750;
-    const poolH = 500;
+    const poolW = canvasRef.current ? canvasRef.current.clientWidth || 1000 : 1000;
+    const count = Math.max(180, Math.min(260, Math.floor(poolW * 0.22)));
+    const poolH = 550;
     const surfaceY = 95;
 
     for (let i = 0; i < count; i++) {
@@ -105,8 +105,8 @@ export const Module1_Molecular: React.FC<Module1Props> = ({ lang }) => {
     }
 
     // Explicit probe molecule placed exactly on the surface
-    probePosRef.current = { x: 300, y: surfaceY + 4 };
-    list[0].x = 300;
+    probePosRef.current = { x: Math.min(350, poolW * 0.4), y: surfaceY + 4 };
+    list[0].x = Math.min(350, poolW * 0.4);
     list[0].y = surfaceY + 4;
 
     moleculesRef.current = list;
@@ -778,7 +778,7 @@ export const Module1_Molecular: React.FC<Module1Props> = ({ lang }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[330px_1fr_320px] gap-4 w-full max-w-[1720px] mx-auto p-4 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] xl:grid-cols-[340px_1fr_340px] gap-3.5 w-full p-2.5 sm:p-3 lg:p-4 items-start flex-1">
       {/* LEFT SIDEBAR: Control Dock */}
       <aside className="bg-white rounded-2xl border border-sky-200 shadow-sm p-4 flex flex-col gap-5 text-slate-900">
         <div>
@@ -980,8 +980,8 @@ export const Module1_Molecular: React.FC<Module1Props> = ({ lang }) => {
         </div>
       </aside>
 
-      {/* CENTER STAGE: Canvas Simulation Area (Expanded to min-h-[640px] for smoother visual presence) */}
-      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[640px]">
+      {/* CENTER STAGE: Canvas Simulation Area (Full Width, Expanded Height) */}
+      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[700px] xl:min-h-[750px] w-full min-w-0">
         {/* Canvas Toolbar Info */}
         <div className="flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-600 bg-sky-50/70 rounded-xl border border-sky-100">
           <div className="flex items-center gap-2">
@@ -1002,7 +1002,7 @@ export const Module1_Molecular: React.FC<Module1Props> = ({ lang }) => {
         </div>
 
         {/* Canvas Viewport */}
-        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[580px]">
+        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[640px] xl:min-h-[690px]">
           <canvas
             ref={canvasRef}
             onMouseDown={handleCanvasMouseDown}

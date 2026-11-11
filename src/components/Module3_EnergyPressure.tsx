@@ -455,36 +455,60 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
       // 1. UPPER HALF-CYLINDER (Solid 3D Vault Arching UPWARD)
       // =======================================================================
 
-      // A. Curved 3D Cylindrical Vault Shell
+      // A. Curved 3D Cylindrical Vault Shell (Rendered with smooth longitudinal quad strips from front to back over the crest)
+      const numStrips = 28;
+      for (let s = 0; s < numStrips; s++) {
+        const th1 = (s / numStrips) * Math.PI;
+        const th2 = ((s + 1) / numStrips) * Math.PI;
+
+        const xL1 = (xL + depthX / 2) - Math.cos(th1) * (depthX / 2);
+        const yL1 = (topBaseY + depthY / 2) - Math.cos(th1) * (depthY / 2) - Math.sin(th1) * cylR;
+
+        const xR1 = (xR + depthX / 2) - Math.cos(th1) * (depthX / 2);
+        const yR1 = (topBaseY + depthY / 2) - Math.cos(th1) * (depthY / 2) - Math.sin(th1) * cylR;
+
+        const xR2 = (xR + depthX / 2) - Math.cos(th2) * (depthX / 2);
+        const yR2 = (topBaseY + depthY / 2) - Math.cos(th2) * (depthY / 2) - Math.sin(th2) * cylR;
+
+        const xL2 = (xL + depthX / 2) - Math.cos(th2) * (depthX / 2);
+        const yL2 = (topBaseY + depthY / 2) - Math.cos(th2) * (depthY / 2) - Math.sin(th2) * cylR;
+
+        ctx.beginPath();
+        ctx.moveTo(xL1, yL1);
+        ctx.lineTo(xR1, yR1);
+        ctx.lineTo(xR2, yR2);
+        ctx.lineTo(xL2, yL2);
+        ctx.closePath();
+
+        const midTh = (th1 + th2) / 2;
+        const sinVal = Math.sin(midTh); // 1 at crest, 0 at edges
+        const lightness = 62 + sinVal * 30; // 62% at edges up to 92% at crest highlight
+        const alpha = 0.88;
+        ctx.fillStyle = `hsla(199, 88%, ${lightness}%, ${alpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `hsla(199, 88%, ${Math.max(45, lightness - 10)}%, 0.25)`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      // Outer outline of the upper vault
       ctx.beginPath();
-      // Left arc arching UPWARD from front (xL, topBaseY) to back (xL + depthX, topBaseY + depthY)
+      ctx.moveTo(xL, topBaseY);
       for (let i = 0; i <= 24; i++) {
         const theta = (i / 24) * Math.PI;
         const px = (xL + depthX / 2) - Math.cos(theta) * (depthX / 2);
         const py = (topBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) - Math.sin(theta) * cylR;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+        ctx.lineTo(px, py);
       }
-      // Top-back straight edge: to (xR + depthX, topBaseY + depthY)
       ctx.lineTo(xR + depthX, topBaseY + depthY);
-      // Right arc arching DOWNWARD from back to front
       for (let i = 24; i >= 0; i--) {
         const theta = (i / 24) * Math.PI;
         const px = (xR + depthX / 2) - Math.cos(theta) * (depthX / 2);
         const py = (topBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) - Math.sin(theta) * cylR;
         ctx.lineTo(px, py);
       }
-      // Front straight edge back to (xL, topBaseY)
       ctx.lineTo(xL, topBaseY);
       ctx.closePath();
-
-      const topRoofGrad = ctx.createLinearGradient(0, topBaseY - cylR - 10, 0, topBaseY + 5);
-      topRoofGrad.addColorStop(0, 'rgba(186, 230, 253, 0.95)'); // crest highlight
-      topRoofGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.8)');
-      topRoofGrad.addColorStop(0.85, 'rgba(2, 132, 199, 0.85)');
-      topRoofGrad.addColorStop(1, 'rgba(3, 105, 161, 0.9)');
-      ctx.fillStyle = topRoofGrad;
-      ctx.fill();
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 2.0;
       ctx.stroke();
@@ -498,9 +522,28 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
         const py = (topBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) - Math.sin(theta) * cylR;
         ctx.lineTo(px, py);
       }
+      ctx.lineTo(xL + depthX, topBaseY + depthY);
       ctx.lineTo(xL, topBaseY);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.0;
+      ctx.stroke();
+
+      // Right Semicircular End-Cap (Arching UPWARD)
+      ctx.beginPath();
+      ctx.moveTo(xR, topBaseY);
+      for (let i = 0; i <= 24; i++) {
+        const theta = (i / 24) * Math.PI;
+        const px = (xR + depthX / 2) - Math.cos(theta) * (depthX / 2);
+        const py = (topBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) - Math.sin(theta) * cylR;
+        ctx.lineTo(px, py);
+      }
+      ctx.lineTo(xR + depthX, topBaseY + depthY);
+      ctx.lineTo(xR, topBaseY);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
       ctx.fill();
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 2.0;
@@ -586,35 +629,59 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
       // 2. LOWER HALF-CYLINDER (Solid 3D Trough Arching DOWNWARD)
       // =======================================================================
 
-      // A. Curved 3D Cylindrical Trough Shell
+      // A. Curved 3D Cylindrical Trough Shell (Rendered with smooth longitudinal quad strips arching DOWNWARD)
+      for (let s = 0; s < numStrips; s++) {
+        const th1 = (s / numStrips) * Math.PI;
+        const th2 = ((s + 1) / numStrips) * Math.PI;
+
+        const xL1 = (xL + depthX / 2) - Math.cos(th1) * (depthX / 2);
+        const yL1 = (botBaseY + depthY / 2) - Math.cos(th1) * (depthY / 2) + Math.sin(th1) * cylR;
+
+        const xR1 = (xR + depthX / 2) - Math.cos(th1) * (depthX / 2);
+        const yR1 = (botBaseY + depthY / 2) - Math.cos(th1) * (depthY / 2) + Math.sin(th1) * cylR;
+
+        const xR2 = (xR + depthX / 2) - Math.cos(th2) * (depthX / 2);
+        const yR2 = (botBaseY + depthY / 2) - Math.cos(th2) * (depthY / 2) + Math.sin(th2) * cylR;
+
+        const xL2 = (xL + depthX / 2) - Math.cos(th2) * (depthX / 2);
+        const yL2 = (botBaseY + depthY / 2) - Math.cos(th2) * (depthY / 2) + Math.sin(th2) * cylR;
+
+        ctx.beginPath();
+        ctx.moveTo(xL1, yL1);
+        ctx.lineTo(xR1, yR1);
+        ctx.lineTo(xR2, yR2);
+        ctx.lineTo(xL2, yL2);
+        ctx.closePath();
+
+        const midTh = (th1 + th2) / 2;
+        const sinVal = Math.sin(midTh);
+        const lightness = 60 + (1 - sinVal) * 25; // deeper trough shading
+        const alpha = 0.88;
+        ctx.fillStyle = `hsla(199, 88%, ${lightness}%, ${alpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `hsla(199, 88%, ${Math.max(45, lightness - 10)}%, 0.25)`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      // Outer outline of the lower trough
       ctx.beginPath();
-      // Left arc arching DOWNWARD from front (xL, botBaseY) to back (xL + depthX, botBaseY + depthY)
+      ctx.moveTo(xL, botBaseY);
       for (let i = 0; i <= 24; i++) {
         const theta = (i / 24) * Math.PI;
         const px = (xL + depthX / 2) - Math.cos(theta) * (depthX / 2);
         const py = (botBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) + Math.sin(theta) * cylR;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+        ctx.lineTo(px, py);
       }
-      // Back straight edge: to (xR + depthX, botBaseY + depthY)
       ctx.lineTo(xR + depthX, botBaseY + depthY);
-      // Right arc arching UPWARD from back to front
       for (let i = 24; i >= 0; i--) {
         const theta = (i / 24) * Math.PI;
         const px = (xR + depthX / 2) - Math.cos(theta) * (depthX / 2);
         const py = (botBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) + Math.sin(theta) * cylR;
         ctx.lineTo(px, py);
       }
-      // Front straight edge back to (xL, botBaseY)
       ctx.lineTo(xL, botBaseY);
       ctx.closePath();
-
-      const botTroughGrad = ctx.createLinearGradient(0, botBaseY, 0, botBaseY + cylR + 10);
-      botTroughGrad.addColorStop(0, 'rgba(56, 189, 248, 0.7)');
-      botTroughGrad.addColorStop(0.65, 'rgba(2, 132, 199, 0.85)');
-      botTroughGrad.addColorStop(1, 'rgba(3, 105, 161, 0.95)');
-      ctx.fillStyle = botTroughGrad;
-      ctx.fill();
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 2.0;
       ctx.stroke();
@@ -628,9 +695,28 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
         const py = (botBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) + Math.sin(theta) * cylR;
         ctx.lineTo(px, py);
       }
+      ctx.lineTo(xL + depthX, botBaseY + depthY);
       ctx.lineTo(xL, botBaseY);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.0;
+      ctx.stroke();
+
+      // Right Semicircular End-Cap (Arching DOWNWARD)
+      ctx.beginPath();
+      ctx.moveTo(xR, botBaseY);
+      for (let i = 0; i <= 24; i++) {
+        const theta = (i / 24) * Math.PI;
+        const px = (xR + depthX / 2) - Math.cos(theta) * (depthX / 2);
+        const py = (botBaseY + depthY / 2) - Math.cos(theta) * (depthY / 2) + Math.sin(theta) * cylR;
+        ctx.lineTo(px, py);
+      }
+      ctx.lineTo(xR + depthX, botBaseY + depthY);
+      ctx.lineTo(xR, botBaseY);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
       ctx.fill();
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 2.0;
@@ -1186,7 +1272,7 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[330px_1fr_320px] gap-4 w-full max-w-[1720px] mx-auto p-4 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] xl:grid-cols-[340px_1fr_340px] gap-3.5 w-full p-2.5 sm:p-3 lg:p-4 items-start flex-1">
       {/* LEFT SIDEBAR: Controls Dock */}
       <aside className="bg-white rounded-2xl border border-sky-200 shadow-sm p-4 flex flex-col gap-4 text-slate-900 max-h-[calc(100vh-100px)] overflow-y-auto">
         <div>
@@ -1449,8 +1535,8 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
         )}
       </aside>
 
-      {/* CENTER STAGE: Canvas */}
-      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[640px]">
+      {/* CENTER STAGE: Canvas (Full Width, Expanded Height) */}
+      <main className="bg-white rounded-2xl border border-sky-200 shadow-sm p-3 flex flex-col gap-2 min-h-[700px] xl:min-h-[750px] w-full min-w-0">
         {/* Canvas Toolbar Info */}
         <div className="flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-600 bg-sky-50/70 rounded-xl border border-sky-100">
           <div className="flex items-center gap-2">
@@ -1480,7 +1566,7 @@ export const Module3_EnergyPressure: React.FC<Module3Props> = ({ lang }) => {
         </div>
 
         {/* Canvas Element */}
-        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[580px]">
+        <div className="relative w-full flex-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 min-h-[640px] xl:min-h-[690px]">
           <canvas ref={canvasRef} className="w-full h-full block" />
 
           {/* Contextual Banner for Two-Bubble Paradox */}

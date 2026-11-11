@@ -40,8 +40,8 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-sky-200 bg-white/80 py-3 px-4 lg:px-8 text-center text-xs text-slate-500">
-        <div className="max-w-[1720px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="mt-auto border-t border-sky-200 bg-white/80 py-3 px-3 sm:px-6 text-center text-xs text-slate-500 w-full">
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700">Master Surface Tension Studio</span>
             <span>·</span>
