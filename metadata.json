@@ -1,0 +1,6 @@
+{
+  "name": "Master Surface Tension & Molecular Physics Studio",
+  "description": "Interactive 3D & 60 FPS molecular physics laboratory exploring surface tension, effective wetting length, surface energy, bubble coalescence, and excess pressure.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
